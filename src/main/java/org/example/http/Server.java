@@ -8,6 +8,7 @@ import org.apache.zookeeper.KeeperException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -38,7 +39,7 @@ public class Server {
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            sleep();
+            goingToCrash();
             String query = exchange.getRequestURI().getQuery();
             LOG.info(query);
             String[] keyValue = query.split("=");
@@ -53,10 +54,24 @@ public class Server {
         }
     }
 
-    public void sleep() {
-        try {
-            // Thread.sleep(ThreadLocalRandom.current().nextInt(1, 1000));
-        } catch (Exception e) {}
+    public void goingToCrash() {
+        Runnable run = () -> {
+            while (true) {
+                Random r = new Random();
+                int n = r.nextInt(3);
+                if (n == 2) {
+                    LOG.severe("Application crashed. Exiting...");
+                    System.exit(1);
+                }
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+        Executor executor = Executors.newFixedThreadPool(2);
+        executor.execute(run);
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {

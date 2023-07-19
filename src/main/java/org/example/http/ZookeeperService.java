@@ -24,9 +24,12 @@ public class ZookeeperService {
     }
 
     public void addNodeToCluster() throws InterruptedException, KeeperException {
-        zooKeeper.create(AUTOHEALER_ZNODES_PATH + "/throughput_",
+        String nodeName = zooKeeper.create(AUTOHEALER_ZNODES_PATH + "/throughput_",
                 new byte[]{},
                 ZooDefs.Ids.OPEN_ACL_UNSAFE,
-                CreateMode.EPHEMERAL_SEQUENTIAL);
+                //CreateMode.EPHEMERAL_SEQUENTIAL);
+                CreateMode.PERSISTENT_SEQUENTIAL);
+
+        LOG.info("Created znode " + nodeName);
     }
 }
